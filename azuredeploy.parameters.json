@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "storageAccountName": { "value": "stnordvik06joeree01" },
+    "lagringsNamn": { "value": "stnordvik06joeree02" },
     "appName": { "value": "app-nordvik-web-06joeree" },
     "repoUrl": { "value": "https://github.com/Habibijoel/nordvik-azure" },
     "branch": { "value": "main" },

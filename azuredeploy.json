@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "location": { "type": "string", "defaultValue": "[resourceGroup().location]" },
-    "storageAccountName": { "type": "string", "defaultValue": "stnordvik06joeree01", "minLength": 3, "maxLength": 24 },
+    "lagringsNamn": { "type": "string", "defaultValue": "stnordvik06joeree02", "minLength": 3, "maxLength": 24 },
     "appName": { "type": "string", "defaultValue": "app-nordvik-web-06joeree", "metadata": { "description": "Maste vara globalt unikt (blir <namn>.azurewebsites.net)" } },
     "repoUrl": { "type": "string", "defaultValue": "https://github.com/Habibijoel/nordvik-azure" },
     "branch": { "type": "string", "defaultValue": "main" },
@@ -47,25 +47,25 @@
       }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts", "apiVersion": "2023-01-01", "name": "[parameters('storageAccountName')]", "location": "[parameters('location')]",
+      "type": "Microsoft.Storage/storageAccounts", "apiVersion": "2023-01-01", "name": "[parameters('lagringsNamn')]", "location": "[parameters('location')]",
       "sku": { "name": "Standard_LRS" }, "kind": "StorageV2",
       "properties": { "accessTier": "Hot", "minimumTlsVersion": "TLS1_2", "supportsHttpsTrafficOnly": true, "allowBlobPublicAccess": false,
         "allowSharedKeyAccess": false, "publicNetworkAccess": "Disabled", "defaultToOAuthAuthentication": true,
         "networkAcls": { "defaultAction": "Deny", "bypass": "None" } }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts/blobServices", "apiVersion": "2023-01-01", "name": "[concat(parameters('storageAccountName'), '/default')]",
-      "dependsOn": [ "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]" ],
+      "type": "Microsoft.Storage/storageAccounts/blobServices", "apiVersion": "2023-01-01", "name": "[concat(parameters('lagringsNamn'), '/default')]",
+      "dependsOn": [ "[resourceId('Microsoft.Storage/storageAccounts', parameters('lagringsNamn'))]" ],
       "properties": { "deleteRetentionPolicy": { "enabled": true, "days": 7 } }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts/blobServices/containers", "apiVersion": "2023-01-01", "name": "[concat(parameters('storageAccountName'), '/default/bilder')]",
-      "dependsOn": [ "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]" ],
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers", "apiVersion": "2023-01-01", "name": "[concat(parameters('lagringsNamn'), '/default/bilder')]",
+      "dependsOn": [ "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('lagringsNamn'), 'default')]" ],
       "properties": { "publicAccess": "None" }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts/blobServices/containers", "apiVersion": "2023-01-01", "name": "[concat(parameters('storageAccountName'), '/default/anmalningar')]",
-      "dependsOn": [ "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]" ],
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers", "apiVersion": "2023-01-01", "name": "[concat(parameters('lagringsNamn'), '/default/anmalningar')]",
+      "dependsOn": [ "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('lagringsNamn'), 'default')]" ],
       "properties": { "publicAccess": "None" }
     },
     {
@@ -78,10 +78,10 @@
     },
     {
       "type": "Microsoft.Network/privateEndpoints", "apiVersion": "2023-09-01", "name": "[variables('peName')]", "location": "[parameters('location')]",
-      "dependsOn": [ "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]", "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]" ],
+      "dependsOn": [ "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]", "[resourceId('Microsoft.Storage/storageAccounts', parameters('lagringsNamn'))]" ],
       "properties": {
         "subnet": { "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'snet-nordvik-pe')]" },
-        "privateLinkServiceConnections": [ { "name": "blob", "properties": { "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]", "groupIds": [ "blob" ] } } ]
+        "privateLinkServiceConnections": [ { "name": "blob", "properties": { "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('lagringsNamn'))]", "groupIds": [ "blob" ] } } ]
       }
     },
     {
@@ -105,7 +105,7 @@
           "linuxFxVersion": "PYTHON|3.11", "minTlsVersion": "1.2", "ftpsState": "Disabled", "http20Enabled": true, "alwaysOn": true, "vnetRouteAllEnabled": true,
           "appCommandLine": "gunicorn --bind=0.0.0.0 --timeout 600 app:app",
           "appSettings": [
-            { "name": "STORAGE_ACCOUNT_URL", "value": "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net')]" },
+            { "name": "STORAGE_ACCOUNT_URL", "value": "[concat('https://', parameters('lagringsNamn'), '.blob.core.windows.net')]" },
             { "name": "PROJECT", "value": "app" },
             { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "true" },
             { "name": "WEBSITE_VNET_ROUTE_ALL", "value": "1" }
@@ -124,9 +124,9 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments", "apiVersion": "2022-04-01",
-      "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), parameters('appName'), variables('blobContributor'))]",
-      "dependsOn": [ "[resourceId('Microsoft.Web/sites', parameters('appName'))]", "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]" ],
+      "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('lagringsNamn'))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('lagringsNamn')), parameters('appName'), variables('blobContributor'))]",
+      "dependsOn": [ "[resourceId('Microsoft.Web/sites', parameters('appName'))]", "[resourceId('Microsoft.Storage/storageAccounts', parameters('lagringsNamn'))]" ],
       "properties": { "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('blobContributor'))]",
         "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('appName')), '2022-09-01', 'full').identity.principalId]", "principalType": "ServicePrincipal" }
     },

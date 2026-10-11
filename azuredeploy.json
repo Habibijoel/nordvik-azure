@@ -103,10 +103,9 @@
         "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'snet-nordvik-app')]",
         "siteConfig": {
           "linuxFxVersion": "PYTHON|3.11", "minTlsVersion": "1.2", "ftpsState": "Disabled", "http20Enabled": true, "alwaysOn": true, "vnetRouteAllEnabled": true,
-          "appCommandLine": "gunicorn --bind=0.0.0.0 --timeout 600 app:app",
+          "appCommandLine": "gunicorn --bind=0.0.0.0 --timeout 600 --chdir app app:app",
           "appSettings": [
             { "name": "STORAGE_ACCOUNT_URL", "value": "[concat('https://', parameters('lagringsNamn'), '.blob.core.windows.net')]" },
-            { "name": "PROJECT", "value": "app" },
             { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "true" },
             { "name": "WEBSITE_VNET_ROUTE_ALL", "value": "1" }
           ]

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nordvik – Felanmälan</title>
+<style>body{font-family:system-ui;max-width:760px;margin:2rem auto;padding:0 1rem}label{display:block;margin-top:.8rem}
+input,textarea{width:100%;padding:.5rem}button{margin-top:1rem;padding:.6rem 1.2rem;background:#0b5394;color:#fff;border:0}
+.card{border:1px solid #ddd;padding:1rem;margin:1rem 0;border-radius:6px}img{max-width:100%}.err{color:#b00}</style></head>
+<body><h1>Nordvik Fastigheter – Felanmälan</h1>
+<form method="post" action="/anmal" enctype="multipart/form-data">
+<label>Rubrik<input name="rubrik" required maxlength="120"></label>
+<label>Beskrivning<textarea name="beskrivning" rows="5" required maxlength="2000"></textarea></label>
+<label>Bild (valfri, max 5 MB)<input type="file" name="bild" accept="image/jpeg,image/png,image/webp"></label>
+<button type="submit">Skicka felanmälan</button></form>
+<h2>Anmälningar</h2>
+{% if error %}<p class="err">Kunde inte läsa lagringen: {{ error }}</p>{% endif %}
+{% for i in items %}<div class="card"><strong>{{ i.rubrik }}</strong> <small>{{ i.skapad }} – {{ i.status }}</small>
+<p>{{ i.beskrivning }}</p>{% if i.bild %}<img src="/bild/{{ i.bild }}" alt="bild">{% endif %}</div>
+{% else %}<p>Inga anmälningar ännu.</p>{% endfor %}
+</body></html>
